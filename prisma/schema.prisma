@@ -28,7 +28,7 @@ model Patient {
   sex           String
   phone         String?
   email         String?
-  // medicalHistory String? 
+  medicalHistory String? 
   appointments  Appointment[]
   payments      Payment[]
   queueEntries  Queue[]

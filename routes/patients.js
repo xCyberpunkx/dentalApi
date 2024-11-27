@@ -14,7 +14,7 @@ router.post("/", async (req, res) => {
     sex,
     phone,
     email,
-    // medicalHistory,
+    medicalHistory,
   } = req.body;
   try {
     const newPatient = await prisma.patient.create({
@@ -26,7 +26,7 @@ router.post("/", async (req, res) => {
         sex,
         phone,
         email,
-        // medicalHistory,
+        medicalHistory,
       },
     });
     res.status(201).json(newPatient);
