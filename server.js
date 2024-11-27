@@ -19,12 +19,14 @@ const appointmentRoutes = require("./routes/appointments");
 const queueRoutes = require("./routes/queue");
 const paymentRoutes = require("./routes/payment");
 const doctorRoutes = require("./routes/doctors");
+const typesRoutes = require("./routes/types");
 
 app.use("/patients", patientRoutes);
 app.use("/appointments", appointmentRoutes);
 app.use("/queue", queueRoutes);
 app.use("/payments", paymentRoutes);
 app.use("/doctors", doctorRoutes);
+app.use("/types", typesRoutes);
 
 const PORT = process.env.PORT || 4000;
 

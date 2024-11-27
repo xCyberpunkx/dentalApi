@@ -29,8 +29,25 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Get all appointments for a specific patient
+// Get a specific appointment
 router.get("/:id", async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  try {
+    const appointments = await prisma.appointment.findMany({
+      where: {
+        id: id,
+      },
+    });
+    res.status(200).json(appointments);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching patient's appointments", error });
+  }
+});
+
+// Get all appointments for a specific patient
+router.get("/patient/:id", async (req, res) => {
   const patientId = parseInt(req.params.id, 10);
   try {
     const appointments = await prisma.appointment.findMany({
@@ -85,11 +102,11 @@ router.post("/", async (req, res) => {
 
 // Update appointment
 router.put("/:id", async (req, res) => {
-  const { date, time, status, doctorId } = req.body;
+  const { date, time, status, doctorId, appointmentType } = req.body;
   try {
     const updatedAppointment = await prisma.appointment.update({
       where: { id: parseInt(req.params.id, 10) },
-      data: { date, time, status, doctorId },
+      data: { date, time, status, doctorId, appointmentType },
     });
     res.status(200).json(updatedAppointment);
   } catch (error) {

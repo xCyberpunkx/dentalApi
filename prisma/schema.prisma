@@ -79,3 +79,8 @@ model Doctor {
   appointments  Appointment[]
   payments      Payment[]
 }
+
+model appointmentType {
+  id                     Int       @id @default(autoincrement())
+  type                   String
+}
