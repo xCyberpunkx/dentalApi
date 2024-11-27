@@ -41,29 +41,17 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Update patient details
-// router.put("/:id", async (req, res) => {
-//   const { firstName, lastName, dateOfBirth, phone, email, medicalHistory } =
-//     req.body;
-//   try {
-//     const updatedPatient = await prisma.patient.update({
-//       where: { id: req.params.id },
-//       data: { firstName, lastName, dateOfBirth, phone, email, medicalHistory },
-//     });
-//     res.status(200).json(updatedPatient);
-//   } catch (error) {
-//     res.status(500).json({ message: "Error updating patient", error });
-//   }
-// });
-
-// Delete a patient
-// router.delete("/:id", async (req, res) => {
-//   try {
-//     await prisma.patient.delete({ where: { id: req.params.id } });
-//     res.status(204).send();
-//   } catch (error) {
-//     res.status(500).json({ message: "Error deleting patient", error });
-//   }
-// });
+// Add a new doctor
+router.post("/", async (req, res) => {
+  const { firstName, lastName, specialty } = req.body;
+  try {
+    const newDoctor = await prisma.doctor.create({
+      data: { firstName, lastName, specialty },
+    });
+    res.status(201).json(newDoctor);
+  } catch (error) {
+    res.status(500).json({ message: "Error adding patient", error });
+  }
+});
 
 module.exports = router;
