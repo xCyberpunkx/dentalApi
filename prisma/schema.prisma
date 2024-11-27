@@ -38,11 +38,12 @@ model Appointment {
   id              Int       @id @default(autoincrement())
   patientId       Int
   doctorId        Int
-  appointmentType String
+  typeId          Int  
   date            String
   time            String
   additionalNotes String?
   status          String   @default("upcoming")
+  appointmentType appointmentType  @relation(fields: [typeId], references: [id])
   patient         Patient  @relation(fields: [patientId], references: [id])
   doctor          Doctor   @relation(fields: [doctorId], references: [id])
 }
@@ -83,4 +84,5 @@ model Doctor {
 model appointmentType {
   id                     Int       @id @default(autoincrement())
   type                   String
+  appointments  Appointment[]
 }
