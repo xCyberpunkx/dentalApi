@@ -1,0 +1,81 @@
+
+
+
+
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Patient {
+  id            Int       @id @default(autoincrement())
+  firstName     String
+  lastName      String
+  dateOfBirth   String?
+  age           Int
+  sex           String
+  phone         String?
+  email         String?
+  medicalHistory String
+  appointments  Appointment[]
+  payments      Payment[]
+  queueEntries  Queue[]
+}
+
+model Appointment {
+  id              Int       @id @default(autoincrement())
+  patientId       Int
+  doctorId        Int
+  appointmentType String
+  date            String
+  time            String
+  additionalNotes String?
+  status          String   @default("upcoming")
+  patient         Patient  @relation(fields: [patientId], references: [id])
+  doctor          Doctor   @relation(fields: [doctorId], references: [id])
+}
+
+model Queue {
+  id                     Int       @id @default(autoincrement())
+  patientId              Int
+  status                 String
+  estimatedWaitTime      Int
+  arrivalTime           DateTime
+  timeWaited            Int
+  estimatedTimeToDoctor Int
+  patient               Patient  @relation(fields: [patientId], references: [id])
+}
+
+model Payment {
+  id          Int       @id @default(autoincrement())
+  patientId   Int
+  description String
+  amount      Float
+  doctorId    Int
+  date        DateTime
+  time        DateTime
+  status      String
+  patient     Patient  @relation(fields: [patientId], references: [id])
+  doctor      Doctor   @relation(fields: [doctorId], references: [id])
+}
+
+model Doctor {
+  id            Int         @id @default(autoincrement())
+  firstName     String
+  lastName      String
+  specialty     String
+  appointments  Appointment[]
+  payments      Payment[]
+}
