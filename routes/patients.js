@@ -6,7 +6,7 @@ const router = express.Router();
 
 // Add a new patient
 router.post("/", async (req, res) => {
-  const { firstName, lastName, dateOfBirth, phone, email, medicalHistory } =
+  const { firstName, lastName, dateOfBirth, age, sex, phone, email, medicalHistory } =
     req.body;
   try {
     const newPatient = await prisma.patient.create({
