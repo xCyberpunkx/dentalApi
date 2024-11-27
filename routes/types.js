@@ -13,4 +13,17 @@ router.get("/", async (req, res) => {
   }
 });
 
+// Add a new type
+router.post("/", async (req, res) => {
+  const { type } = req.body;
+  try {
+    const newtype = await prisma.appointmentType.create({
+      data: { type },
+    });
+    res.status(201).json(newtype);
+  } catch (error) {
+    res.status(500).json({ message: "Error adding patient", error });
+  }
+});
+
 module.exports = router;
