@@ -7,7 +7,11 @@ const router = express.Router();
 // GET all patients
 router.get("/", async (req, res) => {
   try {
-    const patients = await prisma.patient.findMany();
+    const patients = await prisma.patient.findMany({
+      include: {
+        sex: true, // Include sex details in the response
+      },
+    });
     res.status(200).json(patients);
   } catch (error) {
     console.error(error);
@@ -22,6 +26,9 @@ router.get("/:id", async (req, res) => {
 
     const patient = await prisma.patient.findUnique({
       where: { id: parseInt(id) },
+      include: {
+        sex: true, // Include sex details in the response
+      },
     });
 
     if (!patient) {
@@ -38,11 +45,11 @@ router.get("/:id", async (req, res) => {
 // POST create a new patient
 router.post("/", async (req, res) => {
   try {
-    const { firstName, lastName, age, sex, phone, email, medicalHistory } =
+    const { firstName, lastName, age, sexId, phone, email, medicalHistory } =
       req.body;
 
     // Validate required fields
-    if (!firstName || !lastName || !age || !sex) {
+    if (!firstName || !lastName || !age || !sexId) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
@@ -52,7 +59,7 @@ router.post("/", async (req, res) => {
         firstName,
         lastName,
         age,
-        sex,
+        sexId, // Use sexId instead of sex
         phone,
         email,
         medicalHistory,
@@ -70,11 +77,11 @@ router.post("/", async (req, res) => {
 router.put("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { firstName, lastName, age, sex, phone, email, medicalHistory } =
+    const { firstName, lastName, age, sexId, phone, email, medicalHistory } =
       req.body;
 
     // Validate required fields
-    if (!firstName || !lastName || !age || !sex) {
+    if (!firstName || !lastName || !age || !sexId) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
@@ -85,7 +92,7 @@ router.put("/:id", async (req, res) => {
         firstName,
         lastName,
         age,
-        sex,
+        sexId, // Use sexId instead of sex
         phone,
         email,
         medicalHistory,
@@ -123,4 +130,16 @@ router.delete("/:id", async (req, res) => {
     res.status(500).json({ error: "Failed to delete patient" });
   }
 });
+
+// GET all sexes
+router.get("/sexes", async (req, res) => {
+  try {
+    const sexes = await prisma.sex.findMany();
+    res.status(200).json(sexes);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch sexes" });
+  }
+});
+
 module.exports = router;

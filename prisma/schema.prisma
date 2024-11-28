@@ -19,19 +19,27 @@ datasource db {
 }
 
 
+model Sex {
+  id        Int       @id @default(autoincrement())
+  gender    String
+  patients  Patient[] @relation("SexPatients")
+}
+
 model Patient {
   id            Int       @id @default(autoincrement())
   firstName     String
   lastName      String
   age           Int
-  sex           String
+  sexId         Int
   phone         String?
   email         String?
-  medicalHistory String? 
+  medicalHistory String?
   appointments  Appointment[]
   payments      Payment[]
   queueEntries  Queue[]
+  sex           Sex       @relation("SexPatients", fields: [sexId], references: [id])
 }
+
 
 model AppointmentStatus {
   id        Int        @id @default(autoincrement())
