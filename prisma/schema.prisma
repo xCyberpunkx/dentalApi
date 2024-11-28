@@ -86,8 +86,8 @@ model Payment {
   description String?
   amount      Float
   doctorId    Int
-  date        DateTime
-  time        DateTime
+  date        String
+  time        String
   statusId    Int        // Foreign key to PaymentStatus
   patient     Patient    @relation(fields: [patientId], references: [id])
   doctor      Doctor     @relation(fields: [doctorId], references: [id])
