@@ -4,10 +4,12 @@ const prisma = new PrismaClient();
 
 const router = express.Router();
 
-// GET all doctors
+// GET all doctors with their specialties
 router.get("/", async (req, res) => {
   try {
-    const doctors = await prisma.doctor.findMany();
+    const doctors = await prisma.doctor.findMany({
+      include: { specialty: true }, // Include the specialty
+    });
     res.status(200).json(doctors);
   } catch (error) {
     console.error(error);
@@ -15,13 +17,14 @@ router.get("/", async (req, res) => {
   }
 });
 
-// GET doctor by ID
+// GET doctor by ID with specialty
 router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
     const doctor = await prisma.doctor.findUnique({
       where: { id: parseInt(id) },
+      include: { specialty: true }, // Include the specialty
     });
 
     if (!doctor) {
@@ -38,10 +41,10 @@ router.get("/:id", async (req, res) => {
 // POST create a new doctor
 router.post("/", async (req, res) => {
   try {
-    const { firstName, lastName, specialty } = req.body;
+    const { firstName, lastName, specialtyId } = req.body;
 
     // Validate required fields
-    if (!firstName || !lastName || !specialty) {
+    if (!firstName || !lastName || !specialtyId) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
@@ -50,7 +53,9 @@ router.post("/", async (req, res) => {
       data: {
         firstName,
         lastName,
-        specialty,
+        specialty: {
+          connect: { id: parseInt(specialtyId) }, // Connect to existing specialty
+        },
       },
     });
 
@@ -65,10 +70,10 @@ router.post("/", async (req, res) => {
 router.put("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { firstName, lastName, specialty } = req.body;
+    const { firstName, lastName, specialtyId } = req.body;
 
     // Validate required fields
-    if (!firstName || !lastName || !specialty) {
+    if (!firstName || !lastName || !specialtyId) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
@@ -78,7 +83,9 @@ router.put("/:id", async (req, res) => {
       data: {
         firstName,
         lastName,
-        specialty,
+        specialty: {
+          connect: { id: parseInt(specialtyId) }, // Update specialty connection
+        },
       },
     });
 
@@ -86,7 +93,6 @@ router.put("/:id", async (req, res) => {
   } catch (error) {
     console.error(error);
     if (error.code === "P2025") {
-      // Prisma error code when the doctor is not found
       return res.status(404).json({ error: "Doctor not found" });
     }
     res.status(500).json({ error: "Failed to update doctor" });
@@ -107,7 +113,6 @@ router.delete("/:id", async (req, res) => {
   } catch (error) {
     console.error(error);
     if (error.code === "P2025") {
-      // Prisma error code when the doctor is not found
       return res.status(404).json({ error: "Doctor not found" });
     }
     res.status(500).json({ error: "Failed to delete doctor" });

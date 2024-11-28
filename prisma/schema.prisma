@@ -95,14 +95,22 @@ model Payment {
 }
 
 
+model Specialty {
+  id       Int      @id @default(autoincrement())
+  name     String   @unique
+  doctors  Doctor[]
+}
+
 model Doctor {
   id            Int         @id @default(autoincrement())
   firstName     String
   lastName      String
-  specialty     String
+  specialtyId   Int
+  specialty     Specialty   @relation(fields: [specialtyId], references: [id])
   appointments  Appointment[]
   payments      Payment[]
 }
+
 
 model appointmentType {
   id                     Int       @id @default(autoincrement())
