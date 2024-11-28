@@ -4,53 +4,113 @@ const prisma = new PrismaClient();
 
 const router = express.Router();
 
-// Add a new patient
-// router.post("/", async (req, res) => {
-//   const { firstName, lastName, dateOfBirth, phone, email, medicalHistory } =
-//     req.body;
-//   try {
-//     const newPatient = await prisma.patient.create({
-//       data: { firstName, lastName, dateOfBirth, phone, email, medicalHistory },
-//     });
-//     res.status(201).json(newPatient);
-//   } catch (error) {
-//     res.status(500).json({ message: "Error adding patient", error });
-//   }
-// });
-
-// View doctor profile
-router.get("/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  try {
-    const doctor = await prisma.doctor.findMany({
-      where: { id: id },
-    });
-    res.status(200).json(doctor);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching doctor", error });
-  }
-});
-
-// View all doctor profile
+// GET all doctors
 router.get("/", async (req, res) => {
   try {
-    const doctor = await prisma.doctor.findMany();
-    res.status(200).json(doctor);
+    const doctors = await prisma.doctor.findMany();
+    res.status(200).json(doctors);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching doctor", error });
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch doctors" });
   }
 });
 
-// Add a new doctor
-router.post("/", async (req, res) => {
-  const { firstName, lastName, specialty } = req.body;
+// GET doctor by ID
+router.get("/:id", async (req, res) => {
   try {
-    const newDoctor = await prisma.doctor.create({
-      data: { firstName, lastName, specialty },
+    const { id } = req.params;
+
+    const doctor = await prisma.doctor.findUnique({
+      where: { id: parseInt(id) },
     });
+
+    if (!doctor) {
+      return res.status(404).json({ error: "Doctor not found" });
+    }
+
+    res.status(200).json(doctor);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch doctor" });
+  }
+});
+
+// POST create a new doctor
+router.post("/", async (req, res) => {
+  try {
+    const { firstName, lastName, specialty } = req.body;
+
+    // Validate required fields
+    if (!firstName || !lastName || !specialty) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    // Create the doctor
+    const newDoctor = await prisma.doctor.create({
+      data: {
+        firstName,
+        lastName,
+        specialty,
+      },
+    });
+
     res.status(201).json(newDoctor);
   } catch (error) {
-    res.status(500).json({ message: "Error adding patient", error });
+    console.error(error);
+    res.status(500).json({ error: "Failed to create doctor" });
+  }
+});
+
+// PUT update doctor by ID
+router.put("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { firstName, lastName, specialty } = req.body;
+
+    // Validate required fields
+    if (!firstName || !lastName || !specialty) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    // Update the doctor
+    const updatedDoctor = await prisma.doctor.update({
+      where: { id: parseInt(id) },
+      data: {
+        firstName,
+        lastName,
+        specialty,
+      },
+    });
+
+    res.status(200).json(updatedDoctor);
+  } catch (error) {
+    console.error(error);
+    if (error.code === "P2025") {
+      // Prisma error code when the doctor is not found
+      return res.status(404).json({ error: "Doctor not found" });
+    }
+    res.status(500).json({ error: "Failed to update doctor" });
+  }
+});
+
+// DELETE doctor by ID
+router.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Delete the doctor
+    const deletedDoctor = await prisma.doctor.delete({
+      where: { id: parseInt(id) },
+    });
+
+    res.status(200).json(deletedDoctor);
+  } catch (error) {
+    console.error(error);
+    if (error.code === "P2025") {
+      // Prisma error code when the doctor is not found
+      return res.status(404).json({ error: "Doctor not found" });
+    }
+    res.status(500).json({ error: "Failed to delete doctor" });
   }
 });
 
