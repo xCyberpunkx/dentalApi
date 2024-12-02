@@ -23,7 +23,7 @@ enum AppointmentStatusEnum {
 
 enum PaymentStatusEnum {
   PENDING
-  PAID
+  PAID // madfou3
   CANCELLED
 }
 
