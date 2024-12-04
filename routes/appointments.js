@@ -6,14 +6,7 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    // Get pagination parameters from query (default to 1 page, 10 items per page)
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
-
     const appointments = await prisma.appointment.findMany({
-      skip,
-      take: limit,
       include: {
         doctor: {
           select: {
@@ -40,15 +33,7 @@ router.get("/", async (req, res) => {
       },
     });
 
-    // Optionally, you can also fetch the total count of appointments for pagination info
-    const totalAppointments = await prisma.appointment.count();
-
-    res.status(200).json({
-      appointments,
-      page,
-      totalAppointments,
-      totalPages: Math.ceil(totalAppointments / limit),
-    });
+    res.status(200).json(appointments);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to fetch appointments" });
@@ -75,14 +60,14 @@ router.get("/:id", async (req, res) => {
             lastName: true,
           },
         },
-        appointmentType: {
-          select: {
-            type: true,
-          },
-        },
         status: {
           select: {
-            status: true, // Include the appointment status
+            status: true,
+          },
+        },
+        type: {
+          select: {
+            type: true,
           },
         },
       },
@@ -152,25 +137,54 @@ router.post("/", async (req, res) => {
 router.put("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { date, time, additionalNotes, status } = req.body;
+    const { date, time, doctorId, additionalNotes, typeId, status } = req.body;
 
-    // Find the status ID based on the status string (upcoming, completed, cancelled)
-    const appointmentStatus = await prisma.appointmentStatus.findUnique({
-      where: { status },
+    // Fetch the existing appointment
+    const existingAppointment = await prisma.appointment.findUnique({
+      where: { id: parseInt(id) },
     });
 
-    if (!appointmentStatus) {
-      return res.status(400).json({ error: "Invalid appointment status" });
+    if (!existingAppointment) {
+      return res.status(404).json({ error: "Appointment not found" });
     }
+
+    // Parse and validate status
+    let statusId = existingAppointment.statusId;
+    if (status) {
+      const appointmentStatus = await prisma.appointmentStatus.findUnique({
+        where: { status },
+      });
+
+      if (!appointmentStatus) {
+        return res.status(400).json({ error: "Invalid appointment status" });
+      }
+      statusId = appointmentStatus.id;
+    }
+
+    // Determine date and time
+    const appointmentDate = date
+      ? new Date(date).setHours(0, 0, 0, 0)
+      : existingAppointment.date;
+
+    const appointmentTime = time
+      ? (() => {
+          const [hours, minutes] = time.split(":");
+          const newTime = new Date(appointmentDate);
+          newTime.setHours(hours, minutes, 0, 0);
+          return newTime;
+        })()
+      : existingAppointment.time;
 
     // Update the appointment
     const updatedAppointment = await prisma.appointment.update({
       where: { id: parseInt(id) },
       data: {
-        date,
-        time,
-        additionalNotes,
-        statusId: appointmentStatus.id,
+        date: new Date(appointmentDate),
+        time: appointmentTime,
+        doctorId: doctorId ?? existingAppointment.doctorId,
+        typeId: typeId ?? existingAppointment.typeId,
+        additionalNotes: additionalNotes ?? existingAppointment.additionalNotes,
+        statusId,
       },
     });
 
