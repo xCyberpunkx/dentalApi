@@ -1,14 +1,11 @@
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 async function main() {
   // Seed Genders
   console.log("Seeding genders...");
   await prisma.sex.createMany({
-    data: [
-      { gender: 'MALE' },
-      { gender: 'FEMALE' },
-    ],
+    data: [{ gender: "MALE" }, { gender: "FEMALE" }],
     skipDuplicates: true,
   });
 
@@ -16,9 +13,9 @@ async function main() {
   console.log("Seeding appointment statuses...");
   await prisma.appointmentStatus.createMany({
     data: [
-      { status: 'WAITING' },
-      { status: 'UPCOMING' },
-      { status: 'COMPLETED' },
+      { status: "WAITING" },
+      { status: "UPCOMING" },
+      { status: "COMPLETED" },
     ],
     skipDuplicates: true,
   });
@@ -27,9 +24,9 @@ async function main() {
   console.log("Seeding appointment types...");
   await prisma.appointmentType.createMany({
     data: [
-      { type: 'Consultation' },
-      { type: 'Follow-up' },
-      { type: 'Emergency' },
+      { type: "Consultation" },
+      { type: "Follow-up" },
+      { type: "Emergency" },
     ],
     skipDuplicates: true,
   });
@@ -37,21 +34,14 @@ async function main() {
   // Seed Payment Statuses
   console.log("Seeding payment statuses...");
   await prisma.paymentStatus.createMany({
-    data: [
-      { status: 'PENDING' },
-      { status: 'PAID' },
-      { status: 'CANCELLED' },
-    ],
+    data: [{ status: "PENDING" }, { status: "PAID" }, { status: "CANCELLED" }],
     skipDuplicates: true,
   });
 
   // Seed Specialties
   console.log("Seeding specialties...");
   await prisma.specialty.createMany({
-    data: [
-      { name: 'Dentist' },
-      { name: 'Orthodontist' },
-    ],
+    data: [{ name: "Dentist" }, { name: "Orthodontist" }],
     skipDuplicates: true,
   });
 
