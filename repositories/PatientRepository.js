@@ -3,7 +3,8 @@ const prisma = new PrismaClient();
 
 const PatientRepository = {
     async getAllPatients() {
-        return prisma.patient.findMany(); // Using async for db operations
+        return prisma.patient.findMany(
+        ); // Using async for db operations
     },
 
     async getPatientById(id) {
