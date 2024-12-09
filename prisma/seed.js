@@ -16,11 +16,14 @@ async function main() {
   console.log("Seeding appointment statuses...");
   await prisma.appointmentStatus.createMany({
     data: [
+
       { status: 'WAITING' },
       { status: 'UPCOMING' },
       { status: 'COMPLETED' },
-    ],
+           ],
+
     skipDuplicates: true,
+
   });
 
   // Seed Appointment Types
@@ -30,6 +33,8 @@ async function main() {
       { type: 'Consultation' },
       { type: 'Follow-up' },
       { type: 'Emergency' },
+      { type: 'Routine Check-up' },
+      { type: 'Surgery' },
     ],
     skipDuplicates: true,
   });
@@ -41,6 +46,7 @@ async function main() {
       { status: 'PENDING' },
       { status: 'PAID' },
       { status: 'CANCELLED' },
+    
     ],
     skipDuplicates: true,
   });
@@ -51,6 +57,35 @@ async function main() {
     data: [
       { name: 'Dentist' },
       { name: 'Orthodontist' },
+      { name: 'Oral Surgeon' },
+      { name: 'Periodontist' },
+      { name: 'Pediatric Dentist' },
+    ],
+    skipDuplicates: true,
+  });
+
+  // Seed Doctors
+  console.log("Seeding doctors...");
+  await prisma.doctor.createMany({
+    data: [
+      { firstName: 'John', lastName: 'Doe', specialtyId: 1 },
+      { firstName: 'Jane', lastName: 'Smith', specialtyId: 2 },
+      { firstName: 'Emily', lastName: 'Brown', specialtyId: 3 },
+      { firstName: 'Michael', lastName: 'Johnson', specialtyId: 4 },
+      { firstName: 'Sarah', lastName: 'Williams', specialtyId: 5 },
+    ],
+    skipDuplicates: true,
+  });
+
+  // Seed Patients
+  console.log("Seeding patients...");
+  await prisma.patient.createMany({
+    data: [
+      { firstName: 'Alice', lastName: 'Green', age: 30, sexId: 1, phone: '1234567890', email: 'alice@example.com', medicalHistory: 'No significant history' },
+      { firstName: 'Bob', lastName: 'White', age: 40, sexId: 1, phone: '9876543210', email: 'bob@example.com', medicalHistory: 'Diabetes' },
+      { firstName: 'Charlie', lastName: 'Black', age: 25, sexId: 2, phone: '1231231234', email: 'charlie@example.com', medicalHistory: 'Asthma' },
+      { firstName: 'Diana', lastName: 'Gray', age: 35, sexId: 2, phone: '3213214321', email: 'diana@example.com', medicalHistory: 'Hypertension' },
+      { firstName: 'Edward', lastName: 'Blue', age: 45, sexId: 1, phone: '4564564567', email: 'edward@example.com', medicalHistory: 'None' },
     ],
     skipDuplicates: true,
   });
