@@ -30,14 +30,14 @@ const AppointmentRepository = {
       include: {
         doctor: {
           select: {
-            // Select only the doctor's first and last name
+           
             firstName: true,
             lastName: true,
           },
         },
         patient: true, // Include patient details if needed
-        status: true, // Include appointment status if needed
-        type: true, // Include appointment type if needed
+        status: true, 
+        type: true, 
       },
     });
   },
