@@ -153,9 +153,6 @@ model Document {
 model AppointmentType {
   id           Int           @id @default(autoincrement())
   type         String        @unique
-  duration     Int           // Duration in minutes
-  description  String?
-  cost         Decimal       // Base cost for this type
   appointments Appointment[] 
 }
 
