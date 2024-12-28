@@ -7,7 +7,7 @@ const AppointmentRepository = {
       include: {
         doctor: {
           select: {
-            // Select only the doctor's first and last name
+           
             firstName: true,
             lastName: true,
           },
@@ -17,9 +17,9 @@ const AppointmentRepository = {
             firstName: true,
             lastName: true,
           },
-        }, // You can also include patient details if needed
-        status: true, // Include appointment status if needed
-        type: true, // Include appointment type if needed
+        }, 
+        status: true,
+        type: true,
       },
     });
   },
@@ -35,7 +35,7 @@ const AppointmentRepository = {
             lastName: true,
           },
         },
-        patient: true, // Include patient details if needed
+        patient: true, 
         status: true, 
         type: true, 
       },
@@ -45,10 +45,9 @@ const AppointmentRepository = {
   async createAppointment(data) {
     if (data.date && data.time) {
       const appointmentDate = new Date(data.date);
-      appointmentDate.setHours(0, 0, 0, 0); // Reset the time to midnight
-
+      appointmentDate.setHours(0, 0, 0, 0); 
       let appointmentTime = new Date(appointmentDate);
-      const [hours, minutes] = data.time.split(":"); // Assuming time is in "HH:mm" format
+      const [hours, minutes] = data.time.split(":"); 
       appointmentTime.setHours(hours, minutes, 0, 0);
 
       data.date = appointmentDate;
@@ -62,10 +61,10 @@ const AppointmentRepository = {
   async updateAppointment(id, data) {
     if (data.date && data.time) {
       const appointmentDate = new Date(data.date);
-      appointmentDate.setHours(0, 0, 0, 0); // Reset the time to midnight
+      appointmentDate.setHours(0, 0, 0, 0); 
 
       let appointmentTime = new Date(appointmentDate);
-      const [hours, minutes] = data.time.split(":"); // Assuming time is in "HH:mm" format
+      const [hours, minutes] = data.time.split(":"); 
       appointmentTime.setHours(hours, minutes, 0, 0);
 
       data.date = appointmentDate;
@@ -89,13 +88,13 @@ const AppointmentRepository = {
       include: {
         doctor: {
           select: {
-            // Select only the doctor's first and last name
+
             firstName: true,
             lastName: true,
           },
         },
-        status: true, // Include appointment status if needed
-        type: true, // Include appointment type if needed
+        status: true, 
+        type: true, 
       },
     });
   },

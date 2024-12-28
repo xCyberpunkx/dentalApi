@@ -2,252 +2,152 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 async function main() {
-  // Seed Sex (Gender)
-  console.log("Seeding genders...");
-  const male = await prisma.sex.upsert({
-    where: { gender: 'MALE' },
-    update: {},
-    create: { gender: 'MALE' }
-  });
-  const female = await prisma.sex.upsert({
-    where: { gender: 'FEMALE' },
-    update: {},
-    create: { gender: 'FEMALE' }
-  });
+  try {
+    console.log('Seeding started...');
 
-  // Seed Patients
-  console.log("Seeding patients...");
-  const patients = await prisma.patient.createMany({
-    data: [
-      {
-        firstName: 'John',
-        lastName: 'Doe',
-        age: 30,
-        sexId: male.id,
-        phone: '1234567890',
-        email: 'john.doe@example.com',
-        medicalHistory: 'No significant medical history'
+    // Create or find the Male sex entry
+    const male = await prisma.sex.findFirst({
+      where: { gender: 'MALE' },
+    });
+    if (!male) {
+      await prisma.sex.create({ data: { gender: 'MALE' } });
+      console.log('Male sex created');
+    } else {
+      console.log('Male sex found');
+    }
+
+    // Create or find the Female sex entry
+    const female = await prisma.sex.findFirst({
+      where: { gender: 'FEMALE' },
+    });
+    if (!female) {
+      await prisma.sex.create({ data: { gender: 'FEMALE' } });
+      console.log('Female sex created');
+    } else {
+      console.log('Female sex found');
+    }
+
+    // Create a new user only if it doesn't already exist
+    const existingUser = await prisma.user.findUnique({
+      where: { email: 'superadmin@example.com' },
+    });
+    let user;
+    if (!existingUser) {
+      user = await prisma.user.create({
+        data: {
+          nationalId: 9876543210n,
+          email: 'superadmin@example.com',
+          password: 'hashedpassword',
+          role: 'SUPER_ADMIN',
+          firstName: 'John',
+          lastName: 'Doe',
+          sexId: male.id,
+          phone: '1234567890',
+          city: 'New York',
+          postalCode: '10001',
+          address: '123 Main St, NY',
+          dateOfBirth: new Date('1985-06-15'),
+          isVerified: true,
+          verificationToken: 'abc123xyz',
+          tokenExpiresAt: new Date(Date.now() + 60 * 60 * 1000),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      });
+      console.log('User created:', user);
+    } else {
+      console.log('User already exists:', existingUser);
+      user = existingUser;
+    }
+
+    // Create a Dentist entry (reference the user created above)
+    const dentist = await prisma.dentist.upsert({
+      where: { userId: user.id },
+      update: {},
+      create: { userId: user.id, specialtyId: 1 },
+    });
+    console.log('Dentist created or found:', dentist);
+
+    // Create a Patient entry (reference the user created above)
+    const patient = await prisma.patient.upsert({
+      where: { userId: user.id },
+      update: {},
+      create: {
+        userId: user.id,
+        medicalHistory: 'No significant medical history',
+        allergies: 'None',
+        bloodType: 'O+',
+        emergencyContact: 'Jane Doe, 9876543211',
+        insuranceInfo: 'ABC Health Insurance, Plan #123456',
       },
-      {
-        firstName: 'Jane',
-        lastName: 'Smith',
-        age: 25,
-        sexId: female.id,
-        phone: '9876543210',
-        email: 'jane.smith@example.com',
-        medicalHistory: 'Allergic to penicillin'
+    });
+    console.log('Patient created or found:', patient);
+
+    // Create an AppointmentType entry
+    const appointmentType = await prisma.appointmentType.upsert({
+      where: { type: 'Checkup' },
+      update: {},
+      create: {
+        type: 'Checkup',
+        duration: 30,
+        description: 'Regular dental checkup',
+        cost: 50.0,
       },
-      {
-        firstName: 'Michael',
-        lastName: 'Johnson',
-        age: 40,
-        sexId: male.id,
-        phone: '5555555555',
-        email: 'michael.johnson@example.com',
-        medicalHistory: 'High blood pressure'
+    });
+    console.log('Appointment Type created or found:', appointmentType);
+
+    // Check if the appointment already exists
+    const existingAppointment = await prisma.appointment.findFirst({
+      where: {
+        patientId: patient.id,
+        dentistId: dentist.id,
+        date: new Date("2024-12-28T14:46:48.112Z"),
       },
-      {
-        firstName: 'Emily',
-        lastName: 'Davis',
-        age: 28,
-        sexId: female.id,
-        phone: '3333333333',
-        email: 'emily.davis@example.com',
-        medicalHistory: 'Asthma'
-      }
-    ],
-    skipDuplicates: true
-  });
+    });
 
-  // Seed Queue Entries
-  console.log("Seeding queue entries...");
-  const firstPatient = await prisma.patient.findFirst();
-  const secondPatient = await prisma.patient.findMany({ skip: 1, take: 1 });
+    if (!existingAppointment) {
+      const appointment = await prisma.appointment.create({
+        data: {
+          clinicId: 1,
+          patientId: patient.id,
+          dentistId: dentist.id,
+          date: new Date("2024-12-28T14:46:48.112Z"),
+          startTime: new Date("2024-12-28T14:46:48.112Z"),
+          endTime: new Date("2024-12-28T15:46:48.112Z"),
+          additionalNotes: 'Routine checkup with X-rays',
+          status: 'UPCOMING',
+          typeId: appointmentType.id,
+        },
+      });
+      console.log('Appointment created:', appointment);
+    } else {
+      console.log('Appointment already exists:', existingAppointment);
+    }
 
-  await prisma.queue.createMany({
-    data: [
-      {
-        patientId: firstPatient.id,
-        status: 'WAITING',
-        estimatedWaitTime: 20,
-        arrivalTime: new Date(),
-        timeWaited: 10,
-        estimatedTimeToDoctor: 5
-      },
-      {
-        patientId: firstPatient.id,
-        status: 'IN_PROGRESS',
-        estimatedWaitTime: 15,
-        arrivalTime: new Date(),
-        timeWaited: 5,
-        estimatedTimeToDoctor: 0
-      },
-      {
-        patientId: firstPatient.id,
-        status: 'COMPLETED',
-        estimatedWaitTime: 0,
-        arrivalTime: new Date(),
-        timeWaited: 0,
-        estimatedTimeToDoctor: 0
-      },
-      {
-        patientId: secondPatient[0].id,
-        status: 'SKIPPED',
-        estimatedWaitTime: 0,
-        arrivalTime: new Date(),
-        timeWaited: 0,
-        estimatedTimeToDoctor: 0
-      },
-      {
-        patientId: secondPatient[0].id,
-        status: 'CANCELLED',
-        estimatedWaitTime: 0,
-        arrivalTime: new Date(),
-        timeWaited: 0,
-        estimatedTimeToDoctor: 0
-      }
-    ],
-    skipDuplicates: true
-  });
-
-  // Seed Doctor Specialties
-  console.log("Seeding doctor specialties...");
-  const specialties = await prisma.specialty.createMany({
-    data: [
-      { name: 'General Dentistry' },
-      { name: 'Orthodontics' },
-      { name: 'Oral Surgery' }
-    ],
-    skipDuplicates: true
-  });
-
-  // Seed Appointment Types
-  console.log("Seeding appointment types...");
-  const appointmentTypes = await prisma.appointmentType.createMany({
-    data: [
-      { type: 'Consultation' },
-      { type: 'Check-up' },
-      { type: 'Cleaning' },
-      { type: 'Surgery' }
-    ],
-    skipDuplicates: true
-  });
-
-  // Seed Appointment Statuses
-  console.log("Seeding appointment statuses...");
-  await prisma.appointmentStatus.createMany({
-    data: [
-      { status: 'WAITING' },
-      { status: 'UPCOMING' },
-      { status: 'COMPLETED' }
-    ],
-    skipDuplicates: true
-  });
-
-  // Seed Payment Statuses
-  console.log("Seeding payment statuses...");
-  await prisma.paymentStatus.createMany({
-    data: [
-      { status: 'PENDING' },
-      { status: 'PAID' },
-      { status: 'CANCELLED' }
-    ],
-    skipDuplicates: true
-  });
-
-  // Seed Doctors
-  console.log("Seeding doctors...");
-  const generalDentistry = await prisma.specialty.findFirst({ where: { name: 'General Dentistry' } });
-  const orthodontics = await prisma.specialty.findFirst({ where: { name: 'Orthodontics' } });
-  const oralSurgery = await prisma.specialty.findFirst({ where: { name: 'Oral Surgery' } });
-
-  const doctors = await prisma.doctor.createMany({
-    data: [
-      {
-        firstName: 'Dr. Ahmed',
-        lastName: 'Ben Ali',
-        specialtyId: generalDentistry.id
-      },
-      {
-        firstName: 'Dr. Sarah',
-        lastName: 'Khaled',
-        specialtyId: orthodontics.id
-      },
-      {
-        firstName: 'Dr. Ali',
-        lastName: 'Mansour',
-        specialtyId: oralSurgery.id
-      }
-    ],
-    skipDuplicates: true
-  });
-
-  // Seed Appointments
-  console.log("Seeding appointments...");
-  const firstDoctor = await prisma.doctor.findFirst();
-  const firstPatientForAppointment = await prisma.patient.findFirst();
-
-  await prisma.appointment.createMany({
-    data: [
-      {
-        patientId: firstPatientForAppointment.id,
-        doctorId: firstDoctor.id,
-        date: new Date('2024-12-10'),
-        time: new Date('2024-12-10T09:00:00'),
-        statusId: 1, // Assuming 'WAITING' status
-        typeId: 1,   // Assuming 'Consultation' type
-        additionalNotes: 'Routine consultation'
-      },
-      {
-        patientId: firstPatientForAppointment.id,
-        doctorId: firstDoctor.id,
-        date: new Date('2024-12-11'),
-        time: new Date('2024-12-11T10:00:00'),
-        statusId: 2, // Assuming 'UPCOMING' status
-        typeId: 2,   // Assuming 'Check-up' type
-        additionalNotes: 'Follow-up appointment'
-      }
-    ],
-    skipDuplicates: true
-  });
-
-  // Seed Payments
-  console.log("Seeding payments...");
-  const paymentStatuses = await prisma.paymentStatus.findMany();
-  const paymentStatusPaid = paymentStatuses.find(status => status.status === 'PAID');
-  const paymentStatusPending = paymentStatuses.find(status => status.status === 'PENDING');
-
-  await prisma.payment.createMany({
-    data: [
-      {
-        patientId: firstPatientForAppointment.id,
-        doctorId: firstDoctor.id,
-        description: 'Consultation fee',
-        amount: 100.0,
-        date: new Date('2024-12-10'),
-        time: new Date('2024-12-10T09:00:00'),
-        statusId: paymentStatusPaid.id
-      },
-      {
-        patientId: firstPatientForAppointment.id,
-        doctorId: firstDoctor.id,
-        description: 'Follow-up check-up fee',
+    // Create a Payment entry
+    const payment = await prisma.payment.upsert({
+      where: { id: 1 }, // Use a unique field, assuming id: 1 for the example
+      update: {},
+      create: {
+        patientId: patient.id,
+        treatmentId: null,  // Null for now, you may link treatments later
+        dentistId: dentist.id,  // Link to the dentist
         amount: 50.0,
-        date: new Date('2024-12-11'),
-        time: new Date('2024-12-11T10:00:00'),
-        statusId: paymentStatusPending.id
-      }
-    ],
-    skipDuplicates: true
-  });
+        method: 'Credit Card',
+        reference: 'TX123456789',
+        description: 'Payment for checkup appointment',
+        date: new Date(),
+        status: 'PAID',
+      },
+    });
+    console.log('Payment created or found:', payment);
 
-  console.log("Seeding completed!");
+    console.log('Seeding completed successfully');
+  } catch (error) {
+    console.error('Error during seeding:', error);
+  } finally {
+    await prisma.$disconnect();
+  }
 }
 
-main()
-    .catch(e => {
-      throw e;
-    })
-    .finally(async () => {
-      await prisma.$disconnect();
-    });
+main();
