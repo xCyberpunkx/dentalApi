@@ -11,6 +11,15 @@ const getAllAppointmentTypes = async (req, res) => {
         res.status(500).json({ error: "Failed to fetch appointment types" });
     }
 };
+const getAllQueueAppointments = async (req, res) => {
+    try {
+        const AllQueueAppointments = await appointmentTypeService.getAllQueueAppointments();
+        res.status(200).json(AllQueueAppointments);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to fetch appointment types" });
+    }
+};
 
 const getAppointmentTypeById = async (req, res) => {
     try {
@@ -80,6 +89,7 @@ const deleteAppointmentType = async (req, res) => {
 };
 
 module.exports = {
+    getAllQueueAppointments,
     getAllAppointmentTypes,
     getAppointmentTypeById,
     createAppointmentType,

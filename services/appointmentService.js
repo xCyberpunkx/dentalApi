@@ -4,6 +4,9 @@ const AppointmentService = {
     async getAllAppointments() {
         return AppointmentRepository.getAllAppointments(); // No need for 'await' here
     },
+    async getAllQueueAppointments() {
+        return AppointmentRepository.getAllQueueAppointments(); // No need for 'await' here
+    },
 
     async getAppointmentById(id) {
         return AppointmentRepository.getAppointmentById(id); // No need for 'await' here

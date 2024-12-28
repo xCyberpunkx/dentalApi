@@ -9,6 +9,14 @@ const appointmentController = {
             next(err);
         }
     },
+    async getAllQueueAppointments(req, res, next) {
+        try {
+            const appointments = await AppointmentService.getAllQueueAppointments();
+            res.json(appointments);
+        } catch (err) {
+            next(err);
+        }
+    },
 
     async getAppointmentById(req, res, next) {
         try {

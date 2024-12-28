@@ -23,6 +23,21 @@ const AppointmentRepository = {
       },
     });
   },
+  async getAllQueueAppointments() {
+    return prisma.appointment.findMany({
+      select: {
+        date: true,
+        time: true,
+        patient: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+        status: true,
+      },
+    });
+  },
 
   async getAppointmentById(id) {
     return prisma.appointment.findUnique({
