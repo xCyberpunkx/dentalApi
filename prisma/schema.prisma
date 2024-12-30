@@ -52,7 +52,6 @@ model Patient {
   medicalHistory String?
   appointments   Appointment[]
   payments       Payment[]
-  queueEntries   Queue[]
   sex            Sex           @relation("SexPatients", fields: [sexId], references: [id])
 }
 
@@ -81,17 +80,19 @@ model Appointment {
   doctor          Doctor            @relation(fields: [doctorId], references: [id])
   status          AppointmentStatus @relation(fields: [statusId], references: [id])
   type            AppointmentType   @relation(fields: [typeId], references: [id])
+  queueEntries    Queue[]
 }
 
 model Queue {
   id                    Int             @id @default(autoincrement())
   patientId             Int
+  appointmentId         Int
   status                QueueStatusEnum
+  date                  DateTime          
+  time                  DateTime          
   estimatedWaitTime     Int
-  arrivalTime           DateTime
-  timeWaited            Int
   estimatedTimeToDoctor Int
-  patient               Patient         @relation(fields: [patientId], references: [id])
+  appointment           Appointment     @relation(fields: [appointmentId], references: [id])
 }
 
 model PaymentStatus {
