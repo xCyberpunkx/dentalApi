@@ -1,40 +1,21 @@
-// repositories/queueRepository.js
-const { PrismaClient } = require("@prisma/client");
+const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-const createQueueEntry = async (queueData) => {
-  return prisma.queue.create({
-    data: queueData,
-  });
+const getPatientQueue = async () => {
+  return await prisma.patientQueue.findMany();
 };
 
-const updateQueueEntry = async (id, queueData) => {
-  return prisma.queue.update({
-    where: { id },
-    data: queueData,
-  });
-};
-
-const getQueueEntryById = async (id) => {
-  return prisma.queue.findUnique({
-    where: { id },
-  });
-};
-
-const getAllQueueEntries = async () => {
-  return prisma.queue.findMany();
-};
-
-const deleteQueueEntry = async (id) => {
-  return prisma.queue.delete({
-    where: { id },
-  });
+const updatePatientQueue = async (patientQueue) => {
+  const updates = patientQueue.map(queue => 
+    prisma.patientQueue.update({
+      where: { id: queue.id },
+      data: { estimatedTimeToDoctor: queue.estimatedTimeToDoctor }
+    })
+  );
+  return await prisma.$transaction(updates);
 };
 
 module.exports = {
-  createQueueEntry,
-  updateQueueEntry,
-  getQueueEntryById,
-  getAllQueueEntries,
-  deleteQueueEntry,
+  getPatientQueue,
+  updatePatientQueue,
 };
