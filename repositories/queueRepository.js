@@ -1,21 +1,19 @@
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-const getPatientQueue = async () => {
-  return await prisma.patientQueue.findMany();
+const QueueRepository = {
+  async getAllQueue() {
+    return prisma.queue.findMany({
+      include: {
+        patient: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    }); // Using async for db operations
+  },
 };
 
-const updatePatientQueue = async (patientQueue) => {
-  const updates = patientQueue.map(queue => 
-    prisma.patientQueue.update({
-      where: { id: queue.id },
-      data: { estimatedTimeToDoctor: queue.estimatedTimeToDoctor }
-    })
-  );
-  return await prisma.$transaction(updates);
-};
-
-module.exports = {
-  getPatientQueue,
-  updatePatientQueue,
-};
+module.exports = QueueRepository;

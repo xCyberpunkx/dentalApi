@@ -1,15 +1,9 @@
-// src/services/patientQueueService.js
-const patientQueueRepository = require("../repositories/queueRepository");
+const QueueRepository = require("../repositories/queueRepository");
 
-const getPatientQueue = async () => {
-  return await patientQueueRepository.getPatientQueue();
+const QueueService = {
+    async getAllQueue() {
+        return QueueRepository.getAllQueue();  // Removed 'await'
+    },
 };
 
-const updatePatientQueue = async (patientQueue) => {
-  return await patientQueueRepository.updatePatientQueue(patientQueue);
-};
-
-module.exports = {
-  getPatientQueue,
-  updatePatientQueue,
-};
+module.exports = QueueService;
