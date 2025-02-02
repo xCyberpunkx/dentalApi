@@ -1,4 +1,4 @@
-const AppointmentRepository = require("../repositories/AppointmentRepository");
+const AppointmentRepository = require("../repositories/appointmentRepository");
 
 const AppointmentService = {
     async getAllAppointments() {

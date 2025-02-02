@@ -81,7 +81,7 @@ io.on("connection", (socket) => {
 
 // Routes
 const appointmentRoutes = require("./routes/appointmentRoutes");
-const patientRoutes = require("./routes/patientRoutes");
+const patientRoutes = require("./routes/PatientRoutes");
 const doctorRoutes = require("./routes/doctorRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const queueRoutes = require("./routes/queueRoutes");

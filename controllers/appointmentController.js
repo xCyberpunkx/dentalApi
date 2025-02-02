@@ -1,4 +1,4 @@
-const AppointmentService = require("../services/AppointmentService");
+const AppointmentService = require("../services/appointmentService");
 
 const appointmentController = {
   async getAllAppointments(req, res, next) {
