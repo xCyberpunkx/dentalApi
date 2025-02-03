@@ -1,254 +1,177 @@
-const { PrismaClient } = require("@prisma/client");
+const { PrismaClient } = require('@prisma/client');
+
 const prisma = new PrismaClient();
 
 async function main() {
-  // Seed Sex
-  const maleSex = await prisma.sex.findUnique({ where: { gender: "MALE" } });
-  if (!maleSex) {
-    await prisma.sex.create({
-      data: { gender: "MALE" },
-    });
-  }
+  console.log('Seeding database...');
 
-  const femaleSex = await prisma.sex.findUnique({
-    where: { gender: "FEMALE" },
+  // Create Sex Records
+  const maleSex = await prisma.sex.create({
+    data: { gender: 'MALE' },
   });
-  if (!femaleSex) {
-    await prisma.sex.create({
-      data: { gender: "FEMALE" },
-    });
-  }
-
-  // Seed AppointmentStatus
-  const waitingStatus = await prisma.appointmentStatus.findUnique({
-    where: { status: "WAITING" },
+  const femaleSex = await prisma.sex.create({
+    data: { gender: 'FEMALE' },
   });
-  if (!waitingStatus) {
-    await prisma.appointmentStatus.create({
-      data: { status: "WAITING" },
-    });
-  }
 
-  const upcomingStatus = await prisma.appointmentStatus.findUnique({
-    where: { status: "UPCOMING" },
+  // Create AppointmentStatus Records
+  const waitingStatus = await prisma.appointmentStatus.create({
+    data: { status: 'WAITING' },
   });
-  if (!upcomingStatus) {
-    await prisma.appointmentStatus.create({
-      data: { status: "UPCOMING" },
-    });
-  }
-
-  const completedStatus = await prisma.appointmentStatus.findUnique({
-    where: { status: "COMPLETED" },
+  const upcomingStatus = await prisma.appointmentStatus.create({
+    data: { status: 'UPCOMING' },
   });
-  if (!completedStatus) {
-    await prisma.appointmentStatus.create({
-      data: { status: "COMPLETED" },
-    });
-  }
-
-  // Seed AppointmentType
-  const consultationType = await prisma.appointmentType.findUnique({
-    where: { type: "Consultation" },
+  const completedStatus = await prisma.appointmentStatus.create({
+    data: { status: 'COMPLETED' },
   });
-  if (!consultationType) {
-    await prisma.appointmentType.create({
-      data: { type: "Consultation" },
-    });
-  }
 
-  const followUpType = await prisma.appointmentType.findUnique({
-    where: { type: "Follow-up" },
+  // Create AppointmentType Records
+  const consultationType = await prisma.appointmentType.create({
+    data: { type: 'CONSULTATION' },
   });
-  if (!followUpType) {
-    await prisma.appointmentType.create({
-      data: { type: "Follow-up" },
-    });
-  }
-
-  const emergencyType = await prisma.appointmentType.findUnique({
-    where: { type: "Emergency" },
+  const followUpType = await prisma.appointmentType.create({
+    data: { type: 'FOLLOW_UP' },
   });
-  if (!emergencyType) {
-    await prisma.appointmentType.create({
-      data: { type: "Emergency" },
-    });
-  }
 
-  const routineCheckupType = await prisma.appointmentType.findUnique({
-    where: { type: "Routine Checkup" },
+  // Create PaymentStatus Records
+  const pendingPaymentStatus = await prisma.paymentStatus.create({
+    data: { status: 'PENDING' },
   });
-  if (!routineCheckupType) {
-    await prisma.appointmentType.create({
-      data: { type: "Routine Checkup" },
-    });
-  }
-
-  // Seed Specialty
-  const cardiologySpecialty = await prisma.specialty.findUnique({
-    where: { name: "Cardiology" },
+  const paidPaymentStatus = await prisma.paymentStatus.create({
+    data: { status: 'PAID' },
   });
-  if (!cardiologySpecialty) {
-    await prisma.specialty.create({
-      data: { name: "Cardiology" },
-    });
-  }
-
-  const dermatologySpecialty = await prisma.specialty.findUnique({
-    where: { name: "Dermatology" },
+  const cancelledPaymentStatus = await prisma.paymentStatus.create({
+    data: { status: 'CANCELLED' },
   });
-  if (!dermatologySpecialty) {
-    await prisma.specialty.create({
-      data: { name: "Dermatology" },
-    });
-  }
 
-  const neurologySpecialty = await prisma.specialty.findUnique({
-    where: { name: "Neurology" },
+  // Create Specialty Records
+  const cardiologySpecialty = await prisma.specialty.create({
+    data: { name: 'Cardiology' },
   });
-  if (!neurologySpecialty) {
-    await prisma.specialty.create({
-      data: { name: "Neurology" },
-    });
-  }
-
-  const orthopedicsSpecialty = await prisma.specialty.findUnique({
-    where: { name: "Orthopedics" },
+  const dermatologySpecialty = await prisma.specialty.create({
+    data: { name: 'Dermatology' },
   });
-  if (!orthopedicsSpecialty) {
-    await prisma.specialty.create({
-      data: { name: "Orthopedics" },
-    });
-  }
 
-  // Seed Doctor
-  const doctor1 = await prisma.doctor.findUnique({ where: { id: 1 } });
-  if (!doctor1) {
-    await prisma.doctor.create({
-      data: {
-        firstName: "John",
-        lastName: "Doe",
-        specialtyId: (
-          await prisma.specialty.findUnique({ where: { name: "Cardiology" } })
-        ).id,
-      },
-    });
-  }
-
-  const doctor2 = await prisma.doctor.findUnique({ where: { id: 2 } });
-  if (!doctor2) {
-    await prisma.doctor.create({
-      data: {
-        firstName: "Jane",
-        lastName: "Smith",
-        specialtyId: (
-          await prisma.specialty.findUnique({ where: { name: "Dermatology" } })
-        ).id,
-      },
-    });
-  }
-
-  const doctor3 = await prisma.doctor.findUnique({ where: { id: 3 } });
-  if (!doctor3) {
-    await prisma.doctor.create({
-      data: {
-        firstName: "Michael",
-        lastName: "Brown",
-        specialtyId: (
-          await prisma.specialty.findUnique({ where: { name: "Neurology" } })
-        ).id,
-      },
-    });
-  }
-
-  const doctor4 = await prisma.doctor.findUnique({ where: { id: 4 } });
-  if (!doctor4) {
-    await prisma.doctor.create({
-      data: {
-        firstName: "Emily",
-        lastName: "Davis",
-        specialtyId: (
-          await prisma.specialty.findUnique({ where: { name: "Orthopedics" } })
-        ).id,
-      },
-    });
-  }
-
-  // Seed Patient
-  const patient1 = await prisma.patient.findUnique({
-    where: { email: "alice@example.com" },
+  // Create Doctor Records
+  const doctor1 = await prisma.doctor.create({
+    data: {
+      firstName: 'John',
+      lastName: 'Doe',
+      specialtyId: cardiologySpecialty.id,
+    },
   });
-  if (!patient1) {
-    await prisma.patient.create({
-      data: {
-        firstName: "Alice",
-        lastName: "Johnson",
-        phone: "1234567890",
-        email: "alice@example.com",
-        age: 30,
-        medicalHistory: "No significant history",
-        sexId: (
-          await prisma.sex.findUnique({ where: { gender: "FEMALE" } })
-        ).id,
-      },
-    });
-  }
-
-  const patient2 = await prisma.patient.findUnique({
-    where: { email: "bob@example.com" },
+  const doctor2 = await prisma.doctor.create({
+    data: {
+      firstName: 'Jane',
+      lastName: 'Smith',
+      specialtyId: dermatologySpecialty.id,
+    },
   });
-  if (!patient2) {
-    await prisma.patient.create({
-      data: {
-        firstName: "Bob",
-        lastName: "Brown",
-        phone: "0987654321",
-        email: "bob@example.com",
-        age: 45,
-        medicalHistory: "Hypertension",
-        sexId: (await prisma.sex.findUnique({ where: { gender: "MALE" } })).id,
-      },
-    });
-  }
 
-  const patient3 = await prisma.patient.findUnique({
-    where: { email: "charlie@example.com" },
+  // Create Patient Records
+  const patient1 = await prisma.patient.create({
+    data: {
+      firstName: 'Alice',
+      lastName: 'Johnson',
+      phone: '123-456-7890',
+      email: 'alice@example.com',
+      age: 30,
+      sexId: femaleSex.id,
+    },
   });
-  if (!patient3) {
-    await prisma.patient.create({
-      data: {
-        firstName: "Charlie",
-        lastName: "Davis",
-        phone: "5555555555",
-        email: "charlie@example.com",
-        age: 25,
-        medicalHistory: "Asthma",
-        sexId: (await prisma.sex.findUnique({ where: { gender: "MALE" } })).id,
-      },
-    });
-  }
-
-  const patient4 = await prisma.patient.findUnique({
-    where: { email: "eve@example.com" },
+  const patient2 = await prisma.patient.create({
+    data: {
+      firstName: 'Bob',
+      lastName: 'Brown',
+      phone: '987-654-3210',
+      email: 'bob@example.com',
+      age: 45,
+      sexId: maleSex.id,
+    },
   });
-  if (!patient4) {
-    await prisma.patient.create({
-      data: {
-        firstName: "Eve",
-        lastName: "Wilson",
-        phone: "7777777777",
-        email: "eve@example.com",
-        age: 50,
-        medicalHistory: "Diabetes",
-        sexId: (
-          await prisma.sex.findUnique({ where: { gender: "FEMALE" } })
-        ).id,
-      },
-    });
-  }
 
-  // Continue seeding other models...
-  console.log("Seeding completed successfully.");
+  // Create Action Records
+  const action1 = await prisma.action.create({
+    data: {
+      name: 'Initial Consultation',
+      patientId: patient1.id,
+    },
+  });
+  const action2 = await prisma.action.create({
+    data: {
+      name: 'Follow-Up Visit',
+      patientId: patient2.id,
+    },
+  });
+
+  // Create Appointment Records
+  const appointment1 = await prisma.appointment.create({
+    data: {
+      patientId: patient1.id,
+      doctorId: doctor1.id,
+      typeId: consultationType.id,
+      actionId: action1.id,
+      statusId: waitingStatus.id,
+      date: new Date('2023-11-01'),
+      time: new Date('2023-11-01T10:00:00'),
+    },
+  });
+  const appointment2 = await prisma.appointment.create({
+    data: {
+      patientId: patient2.id,
+      doctorId: doctor2.id,
+      typeId: followUpType.id,
+      actionId: action2.id,
+      statusId: upcomingStatus.id,
+      date: new Date('2023-11-02'),
+      time: new Date('2023-11-02T14:00:00'),
+    },
+  });
+
+  // Create Queue Records
+  const queue1 = await prisma.queue.create({
+    data: {
+      patientId: patient1.id,
+      appointmentId: appointment1.id,
+      estimatedWaitTime: 30,
+      estimatedTimeToDoctor: 15,
+      status: 'WAITING',
+    },
+  });
+  const queue2 = await prisma.queue.create({
+    data: {
+      patientId: patient2.id,
+      appointmentId: appointment2.id,
+      estimatedWaitTime: 45,
+      estimatedTimeToDoctor: 20,
+      status: 'IN_PROGRESS',
+    },
+  });
+
+  // Create Payment Records
+  const payment1 = await prisma.payment.create({
+    data: {
+      patientId: patient1.id,
+      doctorId: doctor1.id,
+      statusId: pendingPaymentStatus.id,
+      actionId: action1.id,
+      amount: 150.0,
+      date: new Date('2023-11-01'),
+      time: new Date('2023-11-01T10:30:00'),
+    },
+  });
+  const payment2 = await prisma.payment.create({
+    data: {
+      patientId: patient2.id,
+      doctorId: doctor2.id,
+      statusId: paidPaymentStatus.id,
+      actionId: action2.id,
+      amount: 200.0,
+      date: new Date('2023-11-02'),
+      time: new Date('2023-11-02T14:30:00'),
+    },
+  });
+
+  console.log('Database seeded successfully!');
 }
 
 main()
