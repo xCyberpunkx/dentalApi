@@ -26,7 +26,6 @@ const io = new Server(server, {
 async function fetchQueue() {
   try {
     queue = await QueueService.getAllQueue();
-    console.log("All queue:", queue);
   } catch (error) {
     console.error("Error fetching queue:", error);
   }

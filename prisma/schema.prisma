@@ -25,6 +25,14 @@ model AppointmentType {
   type         String        @unique
   appointments Appointment[]
 }
+model Action {
+  id           Int           @id @default(autoincrement())
+  name         String      
+  patientId    Int
+  patient      Patient   @relation(fields: [patientId], references: [id])  
+  appointments Appointment[]
+  payments Payment[]
+}
 model Patient {
   id             Int           @id @default(autoincrement())
   firstName      String
@@ -38,21 +46,25 @@ model Patient {
   sex            Sex           @relation("SexPatients", fields: [sexId], references: [id])
   payments       Payment[]
   queueEntries   Queue[]
+  action         Action[]
+
 }
 
 model Appointment {
   id              Int               @id @default(autoincrement())
   patientId       Int
   doctorId        Int
-  additionalNotes String?
   typeId          Int
+  actionId        Int
   statusId        Int
   date            DateTime
   time            DateTime
+  additionalNotes String?
   doctor          Doctor            @relation(fields: [doctorId], references: [id])
   patient         Patient           @relation(fields: [patientId], references: [id])
   status          AppointmentStatus @relation(fields: [statusId], references: [id])
   type            AppointmentType   @relation(fields: [typeId], references: [id])
+  action          Action   @relation(fields: [actionId], references: [id])
   queueEntries    Queue[]
 }
 
@@ -77,14 +89,16 @@ model Payment {
   id          Int           @id @default(autoincrement())
   patientId   Int
   doctorId    Int
-  description String?
-  amount      Float
   statusId    Int
+  actionId    Int
+  amount      Float
   date        DateTime
   time        DateTime
+  description String?
   doctor      Doctor        @relation(fields: [doctorId], references: [id])
   patient     Patient       @relation(fields: [patientId], references: [id])
   status      PaymentStatus @relation(fields: [statusId], references: [id])
+  action      Action   @relation(fields: [actionId], references: [id])
 }
 
 model Specialty {
