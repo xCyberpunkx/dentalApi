@@ -7,102 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Sex {
-  id       Int       @id @default(autoincrement())
-  gender   Gender    @unique
-  patients Patient[] @relation("SexPatients")
-}
-
-
-model AppointmentStatus {
-  id           Int                   @id @default(autoincrement())
-  status       AppointmentStatusEnum @unique
-  appointments Appointment[]
-}
-
-model AppointmentType {
-  id           Int           @id @default(autoincrement())
-  type         String        @unique
-  appointments Appointment[]
-}
-model Patient {
-  id             Int           @id @default(autoincrement())
-  firstName      String
-  lastName       String
-  phone          String?
-  email          String?
-  age            Int
-  medicalHistory String?
-  sexId          Int
-  appointments   Appointment[]
-  sex            Sex           @relation("SexPatients", fields: [sexId], references: [id])
-  payments       Payment[]
-  queueEntries   Queue[]
-}
-
-model Appointment {
-  id              Int               @id @default(autoincrement())
-  patientId       Int
-  doctorId        Int
-  additionalNotes String?
-  typeId          Int
-  statusId        Int
-  date            DateTime
-  time            DateTime
-  doctor          Doctor            @relation(fields: [doctorId], references: [id])
-  patient         Patient           @relation(fields: [patientId], references: [id])
-  status          AppointmentStatus @relation(fields: [statusId], references: [id])
-  type            AppointmentType   @relation(fields: [typeId], references: [id])
-  queueEntries    Queue[]
-}
-
-model Queue {
-  id                    Int             @id @default(autoincrement())
-  patientId             Int
-  appointmentId         Int
-  estimatedWaitTime     Int
-  estimatedTimeToDoctor Int
-  status                QueueStatusEnum
-  appointment           Appointment     @relation(fields: [appointmentId], references: [id])
-  patient               Patient         @relation(fields: [patientId], references: [id])
-}
-
-model PaymentStatus {
-  id       Int               @id @default(autoincrement())
-  status   PaymentStatusEnum @unique
-  payments Payment[]
-}
-
-model Payment {
-  id          Int           @id @default(autoincrement())
-  patientId   Int
-  doctorId    Int
-  description String?
-  amount      Float
-  statusId    Int
-  date        DateTime
-  time        DateTime
-  doctor      Doctor        @relation(fields: [doctorId], references: [id])
-  patient     Patient       @relation(fields: [patientId], references: [id])
-  status      PaymentStatus @relation(fields: [statusId], references: [id])
-}
-
-model Specialty {
-  id      Int      @id @default(autoincrement())
-  name    String   @unique
-  doctors Doctor[]
-}
-
-model Doctor {
-  id           Int           @id @default(autoincrement())
-  firstName    String
-  lastName     String
-  specialtyId  Int
-  appointments Appointment[]
-  specialty    Specialty     @relation(fields: [specialtyId], references: [id])
-  payments     Payment[]
-}
-
 enum Gender {
   MALE
   FEMALE
@@ -126,4 +30,114 @@ enum QueueStatusEnum {
   COMPLETED
   SKIPPED
   CANCELLED
+}
+
+model Sex {
+  id       Int      @id @default(autoincrement())
+  gender   Gender   @unique
+  patients Patient[]
+}
+
+model AppointmentStatus {
+  id           Int                   @id @default(autoincrement())
+  status       AppointmentStatusEnum @unique
+  appointments Appointment[]
+}
+
+model AppointmentType {
+  id           Int           @id @default(autoincrement())
+  type         String        @unique
+  appointments Appointment[]
+}
+
+model Action {
+  id           Int           @id @default(autoincrement())
+  name         String
+  patientId    Int
+  patient      Patient       @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  appointments Appointment[]
+  payments     Payment[]
+}
+
+model Patient {
+  id             Int            @id @default(autoincrement())
+  firstName      String
+  lastName       String
+  phone          String?
+  email          String?        @unique
+  age            Int
+  medicalHistory String?
+  sexId          Int
+  sex            Sex            @relation(fields: [sexId], references: [id])
+  appointments   Appointment[]
+  payments       Payment[]
+  queueEntries   Queue[]
+  actions        Action[]
+}
+
+model Appointment {
+  id              Int               @id @default(autoincrement())
+  patientId       Int
+  doctorId        Int
+  typeId          Int
+  actionId        Int
+  statusId        Int
+  date            DateTime          @db.Date
+  time            DateTime          @db.Time
+  additionalNotes String?
+  doctor          Doctor            @relation(fields: [doctorId], references: [id])
+  patient         Patient           @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  status          AppointmentStatus @relation(fields: [statusId], references: [id])
+  type            AppointmentType   @relation(fields: [typeId], references: [id])
+  action          Action            @relation(fields: [actionId], references: [id], onDelete: Cascade)
+  queueEntries    Queue[]
+}
+
+model Queue {
+  id                    Int             @id @default(autoincrement())
+  patientId             Int
+  appointmentId         Int
+  estimatedWaitTime     Int
+  estimatedTimeToDoctor Int
+  status                QueueStatusEnum
+  appointment           Appointment     @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  patient               Patient         @relation(fields: [patientId], references: [id], onDelete: Cascade)
+}
+
+model PaymentStatus {
+  id       Int               @id @default(autoincrement())
+  status   PaymentStatusEnum @unique
+  payments Payment[]
+}
+
+model Payment {
+  id          Int           @id @default(autoincrement())
+  patientId   Int
+  doctorId    Int
+  statusId    Int
+  actionId    Int
+  amount      Float         @default(0.00)
+  date        DateTime      @db.Date
+  time        DateTime      @db.Time
+  description String?
+  doctor      Doctor        @relation(fields: [doctorId], references: [id])
+  patient     Patient       @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  status      PaymentStatus @relation(fields: [statusId], references: [id])
+  action      Action        @relation(fields: [actionId], references: [id], onDelete: Cascade)
+}
+
+model Specialty {
+  id      Int      @id @default(autoincrement())
+  name    String   @unique
+  doctors Doctor[]
+}
+
+model Doctor {
+  id           Int           @id @default(autoincrement())
+  firstName    String
+  lastName     String
+  specialtyId  Int
+  specialty    Specialty     @relation(fields: [specialtyId], references: [id])
+  appointments Appointment[]
+  payments     Payment[]
 }

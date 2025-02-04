@@ -7,6 +7,7 @@ const QueueRepository = {
       include: {
         patient: {
           select: {
+            id: true,
             firstName: true,
             lastName: true,
           },
